@@ -5,30 +5,30 @@
 // north length 58 width 5
 // deg circle r 150
 
-var canvas = Raphael('canvas', 320, 568)
-canvas.rect(0, 0, 320, 568).attr('fill', 'black')
+var compassPaper = Raphael('compass', 320, 568)
+compassPaper.rect(0, 0, 320, 568).attr('fill', 'black')
 
-var cross = canvas.set()
+var cross = compassPaper.set()
 var crossStyle = {
   stroke: 'white',
   'stroke-width': 1
 }
 cross.push(
-  canvas.path('M90 215L230 215').attr(crossStyle),
-  canvas.path('M160 145L160 285').attr(crossStyle)
+  compassPaper.path('M90 215L230 215').attr(crossStyle),
+  compassPaper.path('M160 145L160 285').attr(crossStyle)
 )
-var northBar = canvas.path('M160 110L160 52').attr({
+var northBar = compassPaper.path('M160 110L160 52').attr({
   stroke: 'white',
   'stroke-width': 4
 })
-var compass = canvas.set()
+var compass = compassPaper.set()
 var strokeWidth
 var billet
 var degText
 for (var i = 0; i < 360; i = i + 2) {
   if (i % 30 == 0) {
     strokeWidth = 2
-    degText = canvas.text(160, 60, i).attr({
+    degText = compassPaper.text(160, 60, i).attr({
       fill: 'white',
       'font-size': '16px'
     }).transform('R' + i + ', 160, 215')
@@ -37,7 +37,7 @@ for (var i = 0; i < 360; i = i + 2) {
   } else {
     strokeWidth = 1
   }
-  billet = canvas.path('M160 110L160 93').attr({
+  billet = compassPaper.path('M160 110L160 93').attr({
     stroke: 'white',
     'stroke-width': strokeWidth
   }).transform('R' + i + ', 160, 215')
@@ -47,26 +47,26 @@ for (var i = 0; i < 360; i = i + 2) {
   );
 }
 ['N', 'E', 'S', 'W'].forEach(function(direction, index) {
-  var directionText = canvas.text(160, 128, direction).attr({
+  var directionText = compassPaper.text(160, 128, direction).attr({
     fill: 'white',
     'font-size': '28px'
   }).transform('R' + index * 90 + ', 160, 215')
   directionText.degPosition = index * 90
   compass.push(directionText)
 })
-var redTriangle = canvas.path('M160 70L150 88L170 88Z').attr({
+var redTriangle = compassPaper.path('M160 70L150 88L170 88Z').attr({
   fill: 'red',
   'stroke-width': 0
 })
 redTriangle.degPosition = 0
 compass.push(redTriangle)
 
-var alphaText = canvas.text(160, 440, '0°').attr({
+var alphaText = compassPaper.text(160, 440, '0°').attr({
   fill: 'white',
   'font-size': '64px'
 })
 
-var directionText = canvas.text(160, 480, 'N').attr({
+var directionText = compassPaper.text(160, 480, 'N').attr({
   fill: 'white',
   'font-size': '16px'
 })
@@ -92,9 +92,22 @@ function throttle(method, delay, duration) {
 
 var directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 
+// gradienter
+var gradienter = Raphael('gradienter', 320, 568)
+gradienter.rect(0, 0, 320, 568).attr('fill', 'black')
+var positiveCircle = gradienter.circle(160, 284, 100).attr({
+  'fill': 'white',
+  'stroke-width': 0
+})
+var negativeCircle = gradienter.circle(160, 284, 100).attr({
+  'fill': 'white',
+  'stroke-width': 0
+})
+
 function deviceOrientationListener(event) {
+  // compass start
   // http://mobiforge.com/design-development/html5-mobile-web-device-orientation-events
-  var alpha = event.webkitCompassHeading;
+  var alpha = event.webkitCompassHeading || event.alpha;
 
   alphaText.attr({
     text: parseInt(alpha) + '°'
@@ -127,6 +140,20 @@ function deviceOrientationListener(event) {
   compass.forEach(function(item) {
     item.transform('R' + (item.degPosition - alpha) + ',160, 215')
   })
+  // compass end
+
+  // gradienter start
+  var dx = 160 * Math.tan(event.gamma/180 * Math.PI)
+  var dy = 284 * Math.tan(event.beta/180 * Math.PI)
+  positiveCircle.attr({
+    cx: 160 + dx,
+    cy: 284 + dy
+  })
+  negativeCircle.attr({
+    cx: 160 - dx,
+    cy: 284 - dy
+  })
+  // gradienter end
 
 }
 if (window.DeviceOrientationEvent) {
@@ -134,3 +161,28 @@ if (window.DeviceOrientationEvent) {
 } else {
   alert("Sorry your browser doesn't support Device Orientation")
 }
+
+// swipe event
+var compassEl = document.getElementById('compass')
+var gradienterEl= document.getElementById('gradienter')
+var hammerFace = new Hammer(document.body)
+var navs = document.getElementsByTagName('li')
+hammerFace.get('swipe').set({direction: Hammer.DIRECTION_HORIZONTAL})
+hammerFace.on('swipe', function (event) {
+  event.preventDefault()
+  if (event.direction == Hammer.DIRECTION_LEFT) {
+    compassEl.style.left = -320 + 'px'
+    gradienterEl.style.left = 0
+    setTimeout(function () {
+      navs[0].setAttribute('class', '')
+      navs[1].setAttribute('class', 'active')
+    },218)
+  } else {
+    compassEl.style.left = 0
+    gradienterEl.style.left = 320 + 'px'
+    setTimeout(function() {
+      navs[0].setAttribute('class', 'active')
+      navs[1].setAttribute('class', '')
+    },218)
+  }
+})
