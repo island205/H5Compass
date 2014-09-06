@@ -1,11 +1,13 @@
-var canvas = Raphael('canvas', 320, 568)
-canvas.rect(0, 0, 320, 568).attr('fill', 'black')
 // center point 160 215
 // cross: length 140
 // inner circle r 105
 // outer circle r 125
 // north length 58 width 5
 // deg circle r 150
+
+var canvas = Raphael('canvas', 320, 568)
+canvas.rect(0, 0, 320, 568).attr('fill', 'black')
+
 var cross = canvas.set()
 var crossStyle = {
   stroke: 'white',
@@ -44,7 +46,7 @@ for (var i = 0; i < 360; i = i + 2) {
     billet
   );
 }
-['N', 'E', 'W', 'S'].forEach(function(direction, index) {
+['N', 'E', 'S', 'W'].forEach(function(direction, index) {
   var directionText = canvas.text(160, 128, direction).attr({
     fill: 'white',
     'font-size': '28px'
@@ -88,6 +90,8 @@ function throttle(method, delay, duration) {
   }
 }
 
+var directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+
 function deviceOrientationListener(event) {
   // http://mobiforge.com/design-development/html5-mobile-web-device-orientation-events
   var alpha = event.webkitCompassHeading;
@@ -95,30 +99,38 @@ function deviceOrientationListener(event) {
   alphaText.attr({
     text: parseInt(alpha) + '°'
   })
-  if (alpha > 315 && alpha <= 45) {
-    directionText.attr({
-      text: 'N'
-    })
-  } else if (alpha > 225 && alpha <= 315) {
-    directionText.attr({
-      text: 'W'
-    })
-  } else if (alpha > 135 && alpha <= 225) {
-    directionText.attr({
-      text: 'S'
-    })
-  } else if (alpha > 45 && alpha <= 135) {
-    directionText.attr({
-      text: 'E'
-    })
+
+  var directionIndex
+
+  if (alpha > 337.5 || alpha < 22.5) {
+    directionIndex = 0
+  } else if (alpha > 45 - 22.5 && alpha < 45 + 22.5) {
+    directionIndex = 1
+  } else if (alpha > 90 - 22.5 && alpha < 90 + 22.5) {
+    directionIndex = 2
+  } else if (alpha > 135 - 22.5 && alpha < 135 + 22.5) {
+    directionIndex = 3
+  } else if (alpha > 180 - 22.5 && alpha < 180 + 22.5) {
+    directionIndex = 4
+  } else if (alpha > 225 - 22.5 && alpha < 225 + 22.5) {
+    directionIndex = 5
+  } else if (alpha > 270 - 22.5 && alpha < 270 + 22.5) {
+    directionIndex = 6
+  } else if (alpha > 315 - 22.5 && alpha < 315 + 22.5) {
+    directionIndex = 7
   }
+
+  directionText.attr({
+    text: directions[directionIndex]
+  })
+
   compass.forEach(function(item) {
-    item.transform('R' + (-item.degPosition - alpha) + ',160, 215')
+    item.transform('R' + (item.degPosition - alpha) + ',160, 215')
   })
 
 }
 if (window.DeviceOrientationEvent) {
-  window.addEventListener('deviceorientation', throttle(deviceOrientationListener, 10, 20))
+  window.addEventListener('deviceorientation', throttle(deviceOrientationListener, 10, 30))
 } else {
   alert("Sorry your browser doesn't support Device Orientation")
 }
