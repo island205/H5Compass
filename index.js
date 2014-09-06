@@ -17,7 +17,7 @@ cross.push(
 )
 var northBar = canvas.path('M160 110L160 52').attr({
   stroke: 'white',
-  'stroke-width': 5
+  'stroke-width': 4
 })
 var compass = canvas.set()
 var strokeWidth
@@ -53,7 +53,8 @@ for (var i = 0; i < 360; i = i + 2) {
   compass.push(directionText)
 })
 var redTriangle = canvas.path('M160 70L150 88L170 88Z').attr({
-  fill: 'red'
+  fill: 'red',
+  'stroke-width': 0
 })
 redTriangle.degPosition = 0
 compass.push(redTriangle)
@@ -86,33 +87,33 @@ function throttle(method, delay, duration) {
     }
   }
 }
-var north
+
 function deviceOrientationListener(event) {
-  if (!north) {
-    north = event.alpha
-  }
+  // http://mobiforge.com/design-development/html5-mobile-web-device-orientation-events
+  var alpha = event.webkitCompassHeading;
+
   alphaText.attr({
-    text: parseInt(event.alpha) + '°'
+    text: parseInt(alpha) + '°'
   })
-  if (event.alpha > 315 && event.alpha <= 45) {
+  if (alpha > 315 && alpha <= 45) {
     directionText.attr({
       text: 'N'
     })
-  } else if (event.alpha > 225 && event.alpha <= 315) {
+  } else if (alpha > 225 && alpha <= 315) {
     directionText.attr({
       text: 'W'
     })
-  } else if (event.alpha > 135 && event.alpha <= 225) {
+  } else if (alpha > 135 && alpha <= 225) {
     directionText.attr({
       text: 'S'
     })
-  } else {
+  } else if (alpha > 45 && alpha <= 135) {
     directionText.attr({
       text: 'E'
     })
   }
   compass.forEach(function(item) {
-    item.transform('R' + (item.degPosition + - event.alpha + north) + ',160, 215')
+    item.transform('R' + (-item.degPosition - alpha) + ',160, 215')
   })
 
 }
