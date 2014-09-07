@@ -103,23 +103,23 @@ var negativeCircleCenter = [160, 284]
 var positiveCircle, negativeCircle
 
 var getIt = false
-function drawGradienterCircles(beta) {
+function drawGradienterCircles(angle) {
   if (getIt) {
     return
   }
 
-  if (beta < .2) {
-    beta = 0
-  } else if (beta > 1) {
-    beta = parseInt(beta)
+  if (angle < .2) {
+    angle = 0
+  } else if (angle > 1) {
+    angle = parseInt(angle)
   } else {
-    beta = 1
+    angle = 1
   }
 
   gradienter.clearRect(0, 0, 320, 568)
   gradienter.globalCompositeOperation = 'xor'
 
-  if (beta == 0) {
+  if (angle == 0) {
     gradienter.fillStyle = '#76ff03'
     getIt = true
     setTimeout(function(){
@@ -140,7 +140,7 @@ function drawGradienterCircles(beta) {
   gradienter.closePath()
   gradienter.fill()
 
-  gradienter.fillText( beta + '°', 175, 288)
+  gradienter.fillText( angle + '°', 175, 288)
 }
 drawGradienterCircles(0)
 
@@ -189,7 +189,16 @@ function deviceOrientationListener(event) {
   positiveCircleCenter = [160 + dx, 284 + dy]
   negativeCircleCenter = [160 - dx, 284 - dy]
 
-  drawGradienterCircles((Math.abs(event.beta) + Math.abs(event.gamma))/2)
+  // http://www.zhihu.com/question/25219398/answer/30254099
+  // http://www.doc88.com/p-38079350479.html
+  var gamma = event.gamma / 360 * Math.PI
+  var beta = event.beta / 360 * Math.PI
+  var sinGamma = Math.sin(gamma)
+  var cosGamma = Math.cos(gamma)
+  var sinBeta = Math.sin(beta)
+  var cosBeta = Math.cos(beta)
+  var angle = Math.acos(cosGamma * cosBeta/(Math.sqrt(Math.pow(cosBeta * sinGamma, 2) + Math.pow(sinBeta, 2) + Math.pow(cosBeta * cosGamma, 2))))
+  drawGradienterCircles(angle / Math.PI * 360)
   // gradienter end
 
 }
