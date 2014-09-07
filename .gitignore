@@ -1,2 +1,3 @@
 bower_components
 !bower_components/raphael/raphael.js
+!bower_components/hammerjs/hammer.js

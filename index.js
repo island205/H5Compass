@@ -93,16 +93,56 @@ function throttle(method, delay, duration) {
 var directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 
 // gradienter
-var gradienter = Raphael('gradienter', 320, 568)
-gradienter.rect(0, 0, 320, 568).attr('fill', 'black')
-var positiveCircle = gradienter.circle(160, 284, 100).attr({
-  'fill': 'white',
-  'stroke-width': 0
-})
-var negativeCircle = gradienter.circle(160, 284, 100).attr({
-  'fill': 'white',
-  'stroke-width': 0
-})
+var gradienter = document.getElementById('gradienter').getContext('2d')
+gradienter.font = '100px sans-serif'
+gradienter.textAlign = 'center'
+gradienter.textBaseline = 'middle'
+
+var positiveCircleCenter = [160, 284]
+var negativeCircleCenter = [160, 284]
+var positiveCircle, negativeCircle
+
+var getIt = false
+function drawGradienterCircles(beta) {
+  if (getIt) {
+    return
+  }
+
+  if (beta < .2) {
+    beta = 0
+  } else if (beta > 1) {
+    beta = parseInt(beta)
+  } else {
+    beta = 1
+  }
+
+  gradienter.clearRect(0, 0, 320, 568)
+  gradienter.globalCompositeOperation = 'xor'
+
+  if (beta == 0) {
+    gradienter.fillStyle = '#76ff03'
+    getIt = true
+    setTimeout(function(){
+      getIt = false
+    }, 618)
+  } else {
+    gradienter.fillStyle = 'black'
+  }
+  gradienter.fillRect(0, 0, 320, 568)
+
+  gradienter.beginPath()
+  gradienter.arc(positiveCircleCenter[0], positiveCircleCenter[1], 100, 0, 360)
+  gradienter.closePath()
+  gradienter.fill()
+
+  gradienter.beginPath()
+  gradienter.arc(negativeCircleCenter[0], negativeCircleCenter[1], 100, 0, 360)
+  gradienter.closePath()
+  gradienter.fill()
+
+  gradienter.fillText( beta + '°', 175, 288)
+}
+drawGradienterCircles(0)
 
 function deviceOrientationListener(event) {
   // compass start
@@ -145,14 +185,11 @@ function deviceOrientationListener(event) {
   // gradienter start
   var dx = 160 * Math.tan(event.gamma/180 * Math.PI)
   var dy = 284 * Math.tan(event.beta/180 * Math.PI)
-  positiveCircle.attr({
-    cx: 160 + dx,
-    cy: 284 + dy
-  })
-  negativeCircle.attr({
-    cx: 160 - dx,
-    cy: 284 - dy
-  })
+
+  positiveCircleCenter = [160 + dx, 284 + dy]
+  negativeCircleCenter = [160 - dx, 284 - dy]
+
+  drawGradienterCircles((Math.abs(event.beta) + Math.abs(event.gamma))/2)
   // gradienter end
 
 }
