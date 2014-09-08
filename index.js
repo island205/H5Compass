@@ -94,12 +94,12 @@ var directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
 
 // gradienter
 var gradienter = document.getElementById('gradienter').getContext('2d')
-gradienter.font = '100px sans-serif'
+gradienter.font = '200px sans-serif'
 gradienter.textAlign = 'center'
 gradienter.textBaseline = 'middle'
 
-var positiveCircleCenter = [160, 284]
-var negativeCircleCenter = [160, 284]
+var positiveCircleCenter = [320, 568]
+var negativeCircleCenter = [320, 568]
 var positiveCircle, negativeCircle
 
 var getIt = false
@@ -116,7 +116,7 @@ function drawGradienterCircles(angle) {
     angle = 1
   }
 
-  gradienter.clearRect(0, 0, 320, 568)
+  gradienter.clearRect(0, 0, 640, 1136)
   gradienter.globalCompositeOperation = 'xor'
 
   if (angle == 0) {
@@ -128,19 +128,19 @@ function drawGradienterCircles(angle) {
   } else {
     gradienter.fillStyle = 'black'
   }
-  gradienter.fillRect(0, 0, 320, 568)
+  gradienter.fillRect(0, 0, 640, 1136)
 
   gradienter.beginPath()
-  gradienter.arc(positiveCircleCenter[0], positiveCircleCenter[1], 100, 0, 360)
+  gradienter.arc(positiveCircleCenter[0], positiveCircleCenter[1], 200, 0, 360)
   gradienter.closePath()
   gradienter.fill()
 
   gradienter.beginPath()
-  gradienter.arc(negativeCircleCenter[0], negativeCircleCenter[1], 100, 0, 360)
+  gradienter.arc(negativeCircleCenter[0], negativeCircleCenter[1], 200, 0, 360)
   gradienter.closePath()
   gradienter.fill()
 
-  gradienter.fillText( angle + '°', 175, 288)
+  gradienter.fillText( angle + '°', 350, 576)
 }
 drawGradienterCircles(0)
 
@@ -183,11 +183,11 @@ function deviceOrientationListener(event) {
   // compass end
 
   // gradienter start
-  var dx = 160 * Math.tan(event.gamma/180 * Math.PI)
-  var dy = 284 * Math.tan(event.beta/180 * Math.PI)
+  var dx = 320 * Math.tan(event.gamma/180 * Math.PI)
+  var dy = 568 * Math.tan(event.beta/180 * Math.PI)
 
-  positiveCircleCenter = [160 + dx, 284 + dy]
-  negativeCircleCenter = [160 - dx, 284 - dy]
+  positiveCircleCenter = [320 + dx, 568 + dy]
+  negativeCircleCenter = [320 - dx, 568 - dy]
 
   // http://www.zhihu.com/question/25219398/answer/30254099
   // http://www.doc88.com/p-38079350479.html
