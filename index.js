@@ -202,11 +202,21 @@ function deviceOrientationListener(event) {
   // gradienter end
 
 }
-if (window.DeviceOrientationEvent) {
-  window.addEventListener('deviceorientation', throttle(deviceOrientationListener, 10, 30))
-} else {
-  alert("Sorry your browser doesn't support Device Orientation")
-}
+
+document.addEventListener('click', function() {
+    // feature detect
+    if (typeof DeviceOrientationEvent != 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then(permissionState => {
+          if (permissionState === 'granted') {
+            window.addEventListener('deviceorientation', throttle(deviceOrientationListener, 10, 30))
+          }
+        })
+        .catch(console.error);
+    } else {
+      alert("Sorry your browser doesn't support Device Orientation")
+    }
+})
 
 // swipe event
 var compassEl = document.getElementById('compass')
